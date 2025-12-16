@@ -38,7 +38,7 @@ async function getDashboardData() {
   const activeProjects = projectsResult.data?.filter(p => p.status === 'active').length || 0
   const totalInvoices = invoicesResult.count || 0
   const paidInvoices = invoicesResult.data?.filter(i => i.status === 'paid').length || 0
-  
+
   const totalRevenue = revenueResult.data
     ?.filter(i => i.status === 'paid')
     .reduce((sum, inv) => sum + (inv.total || 0), 0) || 0
@@ -161,8 +161,8 @@ export default async function DashboardPage() {
           </AnimatedCard>
         </div>
       </StaggerChildren>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <AnimatedCard delay={0.4} className="col-span-4">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
+        <AnimatedCard delay={0.4} className="lg:col-span-4">
           <Card>
             <CardHeader>
               <CardTitle>Overview</CardTitle>
@@ -172,7 +172,7 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
         </AnimatedCard>
-        <AnimatedCard delay={0.5} className="col-span-3">
+        <AnimatedCard delay={0.5} className="lg:col-span-3">
           <Card>
             <CardHeader>
               <CardTitle>Recent Invoices</CardTitle>

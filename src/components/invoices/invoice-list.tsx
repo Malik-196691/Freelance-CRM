@@ -111,7 +111,8 @@ export function InvoiceList({ invoices, clients, projects }: { invoices: Invoice
 
   return (
     <>
-      <div className="rounded-xl border glass-strong shadow-sm overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden md:block rounded-xl border glass-strong shadow-sm overflow-hidden">
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
@@ -215,6 +216,106 @@ export function InvoiceList({ invoices, clients, projects }: { invoices: Invoice
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {invoices.length === 0 ? (
+          <div className="rounded-xl border glass-strong shadow-sm p-8 text-center text-muted-foreground">
+            No invoices found.
+          </div>
+        ) : (
+          invoices.map((invoice) => (
+            <div key={invoice.id} className="rounded-xl border glass-strong shadow-sm p-4 hover:shadow-md transition-all">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-mono text-sm font-semibold">#{invoice.id.slice(0, 8).toUpperCase()}</h3>
+                    <Badge variant="outline" className={invoiceStatusStyles[invoice.status]}>
+                      {invoice.status}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{invoice.clients?.name || "-"}</p>
+                  {invoice.projects?.name && (
+                    <p className="text-xs text-muted-foreground">{invoice.projects.name}</p>
+                  )}
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => handleDownloadPDF(invoice.id)}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedInvoice(invoice)
+                        setRecipientEmail(invoice.clients?.name || "")
+                        setEmailDialogOpen(true)
+                      }}
+                    >
+                      <Mail className="mr-2 h-4 w-4" />
+                      Send Email
+                    </DropdownMenuItem>
+                    {invoice.status !== 'paid' && (
+                      <DropdownMenuItem onClick={() => handleMarkAsPaid(invoice.id)}>
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Mark as Paid
+                      </DropdownMenuItem>
+                    )}
+                    <InvoiceDialog invoice={invoice} clients={clients} projects={projects}>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                    </InvoiceDialog>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">
+                          <Trash className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Invoice?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(invoice.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <div className="space-y-2 pt-3 border-t">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Total Amount:</span>
+                  <span className="text-lg font-bold text-gradient">${invoice.total.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Date:</span>
+                  <span className="font-medium">{new Date(invoice.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Email Dialog */}
